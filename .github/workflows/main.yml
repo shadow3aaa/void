@@ -1,0 +1,42 @@
+name: ci-build
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4.0.4
+      - name: Other deps
+        run: |
+          sudo apt update
+          sudo apt install gcc-multilib git-lfs
+          git lfs pull
+      - name: Build Extension
+        working-directory: extensions/void
+        run: |
+          npm install
+          npm run build
+      - name: Build Void
+        run: |
+          npm run gulp vscode-win32-x64
+          npm run gulp vscode-win32-x64-inno-updater
+          npm run gulp vscode-win32-x64-user-setup
+          npm run gulp vscode-win32-x64-system-setup
+      - name: Upload User Setup
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoidSetup-User
+          compression-level: 9
+          path: .build/win32-x64/user-setup/VSCodeSetup.exe
+      - name: Upload System Setup
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoidSetup-System
+          compression-level: 9
+          path: .build/win32-x64/system-setup/VSCodeSetup.exe
