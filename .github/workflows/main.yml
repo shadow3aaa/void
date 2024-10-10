@@ -12,11 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.0.4
-      - name: Other deps
-        run: |
-          sudo apt update
-          sudo apt install gcc-multilib git-lfs
-          git lfs pull
       - name: Build Extension
         working-directory: extensions/void
         run: |
